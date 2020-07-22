@@ -1,0 +1,26 @@
+
+.authorizeRequests()
+	        .antMatchers(resources).permitAll()  
+	        .antMatchers("/","/index").permitAll()
+	        .antMatchers("/admin*").access("hasRole('ADMIN')")
+	        .antMatchers("/user*").access("hasRole('USER') or hasRole('ADMIN')")
+                .anyRequest().authenticated()
+                .and()
+            .formLogin()
+                .loginPage("/login")
+                .permitAll()
+                .defaultSuccessUrl("/menu")
+                .failureUrl("/login?error=true")
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .and()
+            .rememberMe().rememberMeParameter("my-remember-me")
+            	.tokenRepository(persistentTokenRepository())//Tell the rememberme service which repository will use to manage the token persistent
+            	.userDetailsService(userDetailsService)//IF token valid and authenticate correctly pull the user from this service.
+                .and()
+            .logout()
+                .permitAll()
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessUrl("/login?logout")
+                .and()
+                .csrf().disable();
